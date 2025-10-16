@@ -1,15 +1,18 @@
+import {config} from "dotenv";
+
+config();
+
 import express from 'express';
 import mongoose from 'mongoose';
 import { contact } from './Models/contact.js';
 import {user} from './Models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
 const app = express();
 
 app.use(express.json());
 // jaha pe setup kiya mongodb waha ka link
-mongoose.connect('mongodb://localhost:27017/Contact_API_Youtube')
+mongoose.connect(process.env.MONGODBURL)
   .then(() => console.log("MongoDB connected Successfully"))
   .catch((err) => {
     console.log("MongoDB connection error:", err);
