@@ -53,6 +53,10 @@ app.post('/api/contact/add', async (req, res) => {
   try {
     const { name, email, phone, type } = req.body;
 
+    if(name ==''|| email==''||phone==''||type==''){
+        return res.status(400).json({message:"All required fields are empty!"});
+    }
+
     const newContact = new contact({
       name,
       email,
@@ -75,7 +79,7 @@ app.put('/api/contact/:id', async (req, res) => {
     const { name, email, phone, type } = req.body;
 
     if (name =='' || email ==''|| phone ==''||type == ''){
-         return res.status(404).json({message:"All field required"});
+         return res.status(404).json({message:"All fields are required"});
         }
 
     const updateContact = await contact.findByIdAndUpdate(id, {
@@ -117,8 +121,9 @@ app.delete('/api/contact/:id', async (req, res) => {
 app.post('/api/user/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
     if(name ==''|| email==''||password==''){
-        return res.status(400).json({message:"All required are field"});
+        return res.status(400).json({message:"All required fields are empty!"});
     }
 
     // Check if user already exists
@@ -139,7 +144,7 @@ app.post('/api/user/register', async (req, res) => {
 
     const savedUser = await newUser.save();
     res.status(201).json({
-      message: "User Registration Successfully!",
+      message: "User registration successful!",
       user: savedUser
     });
   } catch (error) {
@@ -156,7 +161,7 @@ app.post('/api/user/login', async (req, res) => {
     const { email, password } = req.body;
 
       if(email==''||password==''){
-        return res.status(400).json({message:"All required are field"});
+        return res.status(400).json({message:"All required fields are empty!"});
     }
 
     // Find user by email
@@ -166,25 +171,25 @@ app.post('/api/user/login', async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check password (basic comparison - in production, use bcrypt)
-    if (existingUser.password !== password) {
+    // Check password use bcrypt
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    const token = jwt.sign({userId: existingUser._id},process.env.JWT_SECRET,{expiresIn:'1h'});
+
     res.json({  
       message: `Welcome back ${existingUser.name}`,
-      user: existingUser
+      user: existingUser,
+      token: token
     });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-
-  const token = jwt.sign({user},'!@#$%^&*()',{expiresIn:'id'});
-
 });
 
 
 
-const port = 1000;
-app.listen(port, () => console.log(`Server is Running on ${port}`));
+app.listen(process.env.PORT, () => console.log(`Server is Running on ${process.env.PORT}`));
