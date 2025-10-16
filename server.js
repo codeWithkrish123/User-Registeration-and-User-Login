@@ -18,6 +18,11 @@ mongoose.connect(process.env.MONGODBURL)
     console.log("MongoDB connection error:", err);
   });
 
+// Home Route
+app.get('/', (req, res) => {
+  res.send("Welcome to Contact API");
+});
+
 //  GET all contacts- jismein sare contatcs aajayenge  iss basically Ending point
 app.get('/api/contacts', async (req, res) => {
   try {
